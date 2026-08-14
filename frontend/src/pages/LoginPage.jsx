@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios.js";
 import {useAuth} from "../context/authContext.jsx";
 import toast from "react-hot-toast";
+import {Link} from "react-router-dom";
 
 const Login = () =>{
     const {setUser} = useAuth();
@@ -79,9 +80,9 @@ const Login = () =>{
 
         <p className="mt-4 text-sm text-center">
           Don't have an account?{" "}
-          <a href={`${import.meta.env.VITE_API_URL}/signup`} className="text-blue-600 underline">
+           <Link to="/signup" className="text-blue-600 underline">
             Signup
-          </a>
+          </Link>
         </p>
         </div>
         </div>
