@@ -11,6 +11,11 @@ const app = express();
 
 const PORT = process.env.PORT;
 
+app.use((req, res, next) => {
+  console.log("Incoming origin:", req.headers.origin);
+  next();
+});
+
 const allowedOrigins = [
     "http://localhost:5173",
     "https://prep-ai-pi-six.vercel.app"
