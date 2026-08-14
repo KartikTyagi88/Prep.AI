@@ -15,7 +15,7 @@ export const generateQuestions = async (req, res) => {
     const prompt = `Generate *exactly* 5 mock interview questions on the topic "${topic}".Return them as a numbered list (1-5).Do *not* include any preamble or trailing text.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.7-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
     });
 
@@ -73,7 +73,7 @@ export const evaluateAnswer = async (req, res) => {
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.7-flash",
+      model: "gemini-3.6-flash",
       contents:prompt,
     });
 
