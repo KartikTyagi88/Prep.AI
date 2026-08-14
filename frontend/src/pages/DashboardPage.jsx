@@ -137,7 +137,7 @@ const DashboardPage = () => {
               )}
             </div>
             
-          </div> {/* <-- THIS WAS THE MISSING CLOSING TAG */}
+          </div> 
 
           {/* Right Column: Sidebar (Calendar) */}
           <div className="w-full lg:w-80 shrink-0">
