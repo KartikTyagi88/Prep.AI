@@ -44,7 +44,7 @@ const DashboardPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-12">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans pb-12 transition-colors duration-200">
       <Navbar />
       
       <div className="p-4 sm:p-6 max-w-7xl mx-auto mt-4">

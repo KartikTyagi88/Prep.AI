@@ -8,8 +8,18 @@ import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/DashboardPage";
 import InterviewStartPage from "./pages/InterviewStartPage";
 import { useAuth } from "./context/authContext";
+import { useEffect } from "react";
 
 const App = () => {
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
 
   const { user } = useAuth();
 
