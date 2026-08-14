@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { useEffect, useState, useRef } from "react";
 import WebCam from "react-webcam";
 import axios from "../utils/axios.js";
 import { useAuth } from "../context/authContext.jsx";
@@ -21,27 +20,47 @@ const InterviewStartPage = () => {
   const [results, setResults] = useState([]);
   const [sessionId, setSessionId] = useState(null);
 
-  // Speech to text hooks:
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
+  // --- NATIVE SPEECH RECOGNITION STATE ---
+  const [transcript, setTranscript] = useState("");
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
-    if (!browserSupportsSpeechRecognition) {
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Speech) {
       toast.error("Your browser does not support speech recognition");
+      return;
     }
-  }, [browserSupportsSpeechRecognition]);
 
-  useEffect(() => {
+    const recognition = new Speech();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      let currentTranscript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        currentTranscript += event.results[i][0].transcript;
+      }
+      setTranscript(currentTranscript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech Error:", event.error);
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
     return () => {
-      if (listening) {
-        SpeechRecognition.stopListening();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
       }
     };
-  }, [listening]);
+  }, []);
 
 
   // Fetching questions:
@@ -55,7 +74,7 @@ const InterviewStartPage = () => {
     setResults([]);
     setCurrentIndex(0);
     setAnswer("");
-    resetTranscript();
+    setTranscript(""); // Replaced resetTranscript()
     try {
       setGenerating(true);
       const res = await axios.post("/interview/start", { topic });
@@ -69,38 +88,58 @@ const InterviewStartPage = () => {
     }
   };
 
-  // Handlers to start and stop speech recognition:
+  // --- NATIVE HANDLERS ---
   const handleStart = () => {
-    resetTranscript();
-    SpeechRecognition.startListening({ continuous: true });
+    setTranscript("");
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.start();
+        setListening(true);
+      } catch (err) {
+        console.error("Mic already started", err);
+      }
+    }
   };
+
   const handleStop = () => {
-    SpeechRecognition.stopListening();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+    }
     setAnswer(transcript);
   };
 
   // Sending answer to backend for evaluation:
   const submitAnswer = async () => {
     const questionText = questions[currentIndex];
-    if (!answer.trim()) {
+    // Allow submission if there's either typed text or a pending transcript
+    if (!answer.trim() && !transcript.trim()) {
       toast.error("Please speak or type your answer");
       return;
     }
+    
+    // Auto-stop listening if they hit submit while mic is still hot
+    if (listening) {
+      handleStop();
+    }
+
+    // Use transcript directly if answer is empty but they were speaking
+    const finalAnswer = answer.trim() || transcript.trim();
 
     setEvaluating(true);
     try {
       const res = await axios.post("/interview/submit-answer", {
         sessionId,
         question: questionText,
-        answer
+        answer: finalAnswer
       });
 
-      setResults(prev => [...prev, { question: questionText, answer, ...res.data }]);
+      setResults(prev => [...prev, { question: questionText, answer: finalAnswer, ...res.data }]);
       toast.success("Answer evaluated!");
 
       // Prepare next question
       setAnswer("");
-      resetTranscript();
+      setTranscript("");
       setCurrentIndex(i => i + 1);
     } catch (error) {
       toast.error("Evaluation failed.");
