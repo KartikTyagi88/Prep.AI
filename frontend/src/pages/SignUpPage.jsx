@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios.js"
 import { useAuth } from "../context/authContext";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const Signup = () => {
     const {setUser} = useAuth();
@@ -90,9 +91,9 @@ const Signup = () => {
 
         <p className="mt-4 text-sm text-center">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 underline">
+          <Link to="/login" className="text-blue-600 underline">
             Login
-          </a>
+          </Link>
         </p>
         </div>
         </div>
