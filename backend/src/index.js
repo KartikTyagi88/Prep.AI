@@ -13,7 +13,7 @@ const PORT = process.env.PORT;
 
 const allowedOrigins = [
     "http://localhost:5173",
-    "prep-ai-pi-six.vercel.app"
+    "https://prep-ai-pi-six.vercel.app"
 ];
 
 app.use(cors({
