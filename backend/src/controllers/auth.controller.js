@@ -80,6 +80,32 @@ export const logout = (req,res) => {
     }
 }
 
+export const updateName = async (req, res) => {
+  try {
+    const { fullName } = req.body;
+
+    if (!fullName || fullName.trim() === "") {
+      return res.status(400).json({ message: "Full name is required" });
+    }
+
+    // req.user is provided by your protectRoute middleware
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { fullName: fullName.trim() },
+      { new: true } // This tells Mongoose to return the updated document
+    ).select("-password"); // Ensure we don't send the password back
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error in updateName controller:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const getProfile = async(req,res)=>{
     try {
         res.status(200).json({user:req.user});
