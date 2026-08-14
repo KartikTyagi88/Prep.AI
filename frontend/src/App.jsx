@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
